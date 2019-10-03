@@ -26,20 +26,22 @@ void main()
     }
 
     // para calcular a componente difusa, precisamos:
-    // vec3 normal = ...
-    // vec3 incidenciaLuz = ...
+    vec3 normal = normalize(v_fragNormal);
+    vec3 incidenciaLuz = normalize(-u_dirLights0direction);
 
     // para calcular a componente especular, precisamos:
-    // vec3 visualizacao = ...
-    // vec3 reflexao = ...
+    vec3 visualizacao = normalize(-v_fragPosition);
+    vec3 reflexao = normalize(reflect(incidenciaLuz, normal));
 
     // calcula as 3 componentes de Phong: ambiente, difusa, especular
-    // vec4 ambiente = ...
-    // vec4 difusa = ...
-    // vec4 especular = ...
+    vec4 ambiente = vec4(0.15,0.15,0.15,1.0) * texture2D(u_diffuseTexture, v_texCoords);
+    vec4 difusa = max(0.0,dot(normal,incidenciaLuz)) * u_dirLights0color * texture2D(u_diffuseTexture, v_texCoords);
+    vec4 especular = pow(max(0.0, dot(visualizacao,reflexao)),5.0) * u_dirLights0color;
+
+    especular *= 0.1;
 
     // Dá o resultado
-    gl_FragColor = vec4(v_fragNormal, 1.0);
+    gl_FragColor = ambiente + difusa + especular;
 
     // DEBUG: para depurar, use a linha a seguir para definir a cor do fragmento
     //gl_FragColor = debugColor;
